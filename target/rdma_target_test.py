@@ -65,6 +65,7 @@ def read_metadata(conn, mask):
             local_mr = MR(pd, length, ibv_access_flags.IBV_ACCESS_LOCAL_WRITE)
 
             cid.connect()
+            print("cid connected!")
 
             #wr = pwr.SendWR(opcode=ibv_wr_opcode.IBV_WR_RDMA_READ, num_sge=1)
             #wr.set_sgl(local_mr)
@@ -78,15 +79,16 @@ def read_metadata(conn, mask):
 
             # Attach SGE to WR
             wr = pwr.SendWR(
-                opcode=ibv_wr_opcode.IBV_WR_RDMA_READ,
-                num_sge = 1
+                opcode=ibv_wr_opcode.IBV_WR_RDMA_READ
             )
-            wr.set_sgl(sge)
+            print("WR Set")
+            wr.set_sgl([sge])
 
             # Set the remote memory details
             wr.wr.rdma.remote_addr = addr
             wr.wr.rdma.rkey = rkey            
-
+            
+            print("About to send WR")
             cid.qp.post_send(wr)
 
             wc = cid.cq.poll()[0]
