@@ -66,8 +66,23 @@ def read_metadata(conn, mask):
 
             cid.connect()
 
-            wr = pwr.SendWR(opcode=ibv_wr_opcode.IBV_WR_RDMA_READ, num_sge=1)
-            wr.set_sgl(local_mr)
+            #wr = pwr.SendWR(opcode=ibv_wr_opcode.IBV_WR_RDMA_READ, num_sge=1)
+            #wr.set_sgl(local_mr)
+
+            # Create SGE explicitly
+            sge = pwr.SGE(
+                addr=local_mr.buf,
+                length=length,
+                lkey=local_mr.lkey
+            )
+
+            # Attach SGE to WR
+            wr = pwr.SendWR(
+                opcode=ibv_wr_opcode.IBV_WR_RDMA_READ,
+                num_sge = 1
+            )
+            wr.set_sgl(sge)
+
             # Set the remote memory details
             wr.wr.rdma.remote_addr = addr
             wr.wr.rdma.rkey = rkey            
@@ -80,7 +95,7 @@ def read_metadata(conn, mask):
                 print("RDMA Read Successful!")
                 # Verify by reading the local buffer content
                 # mr.read(length, offset) returns the data
-                print(f"Data from Host: {local_mr.read(h_len, 0)}")
+                print(f"Data from Host: {local_mr.read(length, 0)}")
             else:
                 print(f"RDMA Read Failed. Status code: {wc.status}")
         
