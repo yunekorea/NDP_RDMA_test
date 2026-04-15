@@ -13,6 +13,11 @@ from pyverbs.device import Context
 from pyverbs.pd import PD
 from pyverbs.mr import MR
 from pyverbs.libibverbs_enums import ibv_access_flags as fe
+from pyverbs.cmid import CMID, AddrInfo
+from pyverbs.qp import QPInitAttr, QPCap
+from pyverbs.libibverbs_enums import ibv_qp_type
+from pyverbs.librdmacm_enums import rdma_port_space
+from pyverbs.librdmacm_enums import rdma_port_space, RAI_PASSIVE
 
 
 dev_name = "rocep59s0".encode('utf-8')
