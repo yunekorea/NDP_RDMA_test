@@ -39,14 +39,14 @@ def read_metadata(conn, mask):
     if data:
         print("Interrupt received! Processing metadata...")
         # Process your RDMA logic here
-        struct_format = "<QIIQ50s" 
+        struct_format = "<QQII50s" 
         
         try:
             # We slice the data to match the expected struct size
             unpacked = struct.unpack(struct_format, data[:struct.calcsize(struct_format)])
             
-            addr        = unpacked[0]
-            rkey        = unpacked[1]
+            rkey        = unpacked[0]
+            addr        = unpacked[1]
             length      = unpacked[2]
             name_length = unpacked[3]
             # Decode the name and strip null bytes (\x00)
