@@ -110,7 +110,6 @@ try:
 except Exception as e:
     print(f"RDMA Listener Error: {e}")
 
-libc.free(bufferptr)
 finally:
     # Cleanup
     libc.free(bufferptr)
