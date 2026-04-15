@@ -33,7 +33,6 @@ cap = QPCap(max_send_wr=5, max_recv_wr=5, max_send_sge=1)
 qp_init_attr = QPInitAttr(cap=cap, qp_type=ibv_qp_type.IBV_QPT_RC)
 print(f"Connecting to Host at {host_ip}...")
 cid = CMID(creator=cai, qp_init_attr=qp_init_attr)
-cid.connect()
 
 def read_metadata(conn, mask):
     data = conn.recv(128)
@@ -64,6 +63,7 @@ def read_metadata(conn, mask):
             
         
             local_mr = MR(pd, length, ibv_access_flags.IBV_ACCESS_LOCAL_WRITE)
+            cid.connect()
             cid.qp.post_send(wr)
 
             wc = cid.cq.poll()[0]
@@ -100,13 +100,14 @@ server.setblocking(False)
 sel.register(server, selectors.EVENT_READ, accept_connection)
 
 print("Python is ready. Waiting for asynchronous events...")
-while True:
-    events = sel.select() # This blocks efficiently (uses epoll/kqueue)
-    for key, mask in events:
-        callback = key.data
-        callback(key.fileobj, mask)
+try:
+    while True:
+        events = sel.select() # This blocks efficiently (uses epoll/kqueue)
+        for key, mask in events:
+            callback = key.data
+            callback(key.fileobj, mask)
 except KeyboardInterrupt:
-    print("Shutting donw...")
+    print("Shutting down...")
 finally:
     cid.close()
 
