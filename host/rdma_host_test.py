@@ -84,7 +84,34 @@ print(cmd.data)
 print(bufferptr)
 
 result = nvme.ndp_passthru(fd, cmd)
+print(result)
+
+print("Starting RDMA listener to keep MR alive...")
+try:
+    # Setup listener on the same port the Target is looking for (7471)
+    # AI_PASSIVE (0x1) allows it to bind to local addresses
+    cai = AddrInfo(src_service="7471", port_space=rdma_port_space.RDMA_PS_TCP, flags=1)
+    
+    cap = QPCap(max_send_wr=5, max_recv_wr=5, max_send_sge=1)
+    qp_init_attr = QPInitAttr(cap=cap, qp_type=ibv_qp_type.IBV_QPT_RC)
+    
+    # Listen for incoming connection
+    listen_id = CMID(creator=cai, qp_init_attr=qp_init_attr)
+    listen_id.listen()
+    
+    print("Waiting for Target to connect...")
+    # This blocks until the Target calls cid.connect()
+    conn_id = listen_id.accept()
+    print("Target connected! The MR is now accessible.")
+
+    # Stay alive as long as the connection exists
+    input("Press Enter to disconnect and stop hosting memory (Target will lose access)...")
+
+except Exception as e:
+    print(f"RDMA Listener Error: {e}")
 
 libc.free(bufferptr)
-
-print(result)
+finally:
+    # Cleanup
+    libc.free(bufferptr)
+    print("Process finished.")

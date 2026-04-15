@@ -13,6 +13,11 @@ from pyverbs.device import Context
 from pyverbs.pd import PD
 from pyverbs.mr import MR
 from pyverbs.libibverbs_enums import ibv_access_flags as fe
+from pyverbs.cmid import CMID, AddrInfo
+from pyverbs.qp import QPInitAttr, QPCap
+from pyverbs.libibverbs_enums import ibv_access_flags, ibv_qp_type, ibv_wr_opcode
+from pyverbs.librdmacm_enums import rdma_port_space
+import pyverbs.wr as pwr
 
 
 dev_name = "mlx5_0".encode('utf-8')
@@ -22,6 +27,13 @@ ctx = Context(name='mlx5_0')
 pd = PD(ctx)
 host_ip = "192.168.100.2"
 sel = selectors.DefaultSelector()
+cai = AddrInfo(dst=host_ip, dst_service="7471",
+                port_space = rdma_port_space.RDMA_PS_TCP)
+cap = QPCap(max_send_wr=5, max_recv_wr=5, max_send_sge=1)
+qp_init_attr = QPInitAttr(cap=cap, qp_type=ibv_qp_type.IBV_QPT_RC)
+print(f"Connecting to Host at {host_ip}...")
+cid = CMID(creator=cai, qp_init_attr=qp_init_attr)
+cid.connect()
 
 def read_metadata(conn, mask):
     data = conn.recv(128)
@@ -49,12 +61,26 @@ def read_metadata(conn, mask):
             print(f"Device Name: {device_name}")
             
             # Now you can proceed with your RDMA logic using these variables
-        local_mr = MR(pd, length, ibv_access_flags.IBV_ACCESS_LOCAL_WRITE)
-
             
+        
+            local_mr = MR(pd, length, ibv_access_flags.IBV_ACCESS_LOCAL_WRITE)
+            cid.qp.post_send(wr)
+
+            wc = cid.cq.poll()[0]
+            
+            if wc.status == 0: # Success
+                print("RDMA Read Successful!")
+                # Verify by reading the local buffer content
+                # mr.read(length, offset) returns the data
+                print(f"Data from Host: {local_mr.read(h_len, 0)}")
+            else:
+                print(f"RDMA Read Failed. Status code: {wc.status}")
+        
         except struct.error as e:
             print(f"Error unpacking metadata: {e}")
-        
+        except Exception as e:
+            print(f"RDMA Operation error: {e}")
+
     sel.unregister(conn)
     conn.close()
 
@@ -79,4 +105,8 @@ while True:
     for key, mask in events:
         callback = key.data
         callback(key.fileobj, mask)
+except KeyboardInterrupt:
+    print("Shutting donw...")
+finally:
+    cid.close()
 
