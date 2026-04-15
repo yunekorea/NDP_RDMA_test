@@ -106,7 +106,8 @@ try:
     
     print("Waiting for Target to connect...")
     # This blocks until the Target calls cid.connect()
-    conn_id = listen_id.accept()
+    conn_event_id = listen_id.get_request()
+    conn_event_id.accept()
     print("Target connected! The MR is now accessible.")
 
     # Stay alive as long as the connection exists
