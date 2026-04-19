@@ -36,7 +36,7 @@ pd = PD(ctx)
 num_cqes = 200 # can be adjusted
 comp_vector = 63 # An arbitrary value. comp_vector is limited by the
                     # context's num_comp_vectors
-cq = CQ(ctx, num_cqes, None, None, comp_vector)
+cq = CQ(ctx, num_cqes, None, None, 0)
 print(f"Completion Queue: {cq}")
 
 # 4. Create QP(Queue Pair)
@@ -49,7 +49,6 @@ qp = QP(pd, qp_init_attr, QPAttr())
 '''
 host_ip = "192.168.100.2"
 target_ip = "192.168.100.1"
-sel = selectors.DefaultSelector()
 cai = AddrInfo(src = target_ip, dst=host_ip, dst_service="7471",
                 port_space = rdma_port_space.RDMA_PS_TCP, flags=RAI_PASSIVE)
 port_num = 1
@@ -61,6 +60,7 @@ ah=AH(pd, attr=ah_attr)
 print(f"Connecting to Host at {host_ip}...")
 cid = CMID(creator=cai, qp_init_attr=qp_init_attr)
 '''
+sel = selectors.DefaultSelector()
 
 def read_metadata(conn, mask):
     data = conn.recv(128)
@@ -166,6 +166,6 @@ try:
             callback(key.fileobj, mask)
 except KeyboardInterrupt:
     print("Shutting down...")
-finally:
-    cid.close()
+#finally:
+    #cid.close()
 
