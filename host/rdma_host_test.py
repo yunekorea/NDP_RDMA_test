@@ -14,10 +14,11 @@ from pyverbs.pd import PD
 from pyverbs.mr import MR
 from pyverbs.libibverbs_enums import ibv_access_flags as fe
 from pyverbs.cmid import CMID, AddrInfo
-from pyverbs.qp import QPInitAttr, QPCap
+from pyverbs.qp import QPInitAttr, QPCap, QPAttr, QP
 from pyverbs.libibverbs_enums import ibv_qp_type
 from pyverbs.librdmacm_enums import rdma_port_space
 from pyverbs.librdmacm_enums import rdma_port_space, RAI_PASSIVE
+from pyverbs.cq import CQ
 
 
 dev_name = "rocep59s0".encode('utf-8')
@@ -34,7 +35,7 @@ pd = PD(ctx)
 num_cqes = 200 # can be adjusted
 comp_vector = 63 # An arbitrary value. comp_vector is limited by the
                     # context's num_comp_vectors
-cq = CQ(ctx, num_cqes, None, None, comp_vector)
+cq = CQ(ctx, num_cqes, None, None, 0)
 print(f"Completion Queue: {cq}")
 
 # 4. Create QP(Queue Pair)
