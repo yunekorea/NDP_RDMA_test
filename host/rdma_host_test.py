@@ -26,6 +26,23 @@ dev_name_len = len(dev_name)
 ctx = Context(name='rocep59s0')
 pd = PD(ctx)
 
+# 2. Create PD
+pd = PD(ctx)
+
+# 3. Create CQ(Completion Queue)
+
+num_cqes = 200 # can be adjusted
+comp_vector = 63 # An arbitrary value. comp_vector is limited by the
+                    # context's num_comp_vectors
+cq = CQ(ctx, num_cqes, None, None, comp_vector)
+print(f"Completion Queue: {cq}")
+
+# 4. Create QP(Queue Pair)
+cap = QPCap(max_send_wr=16, max_recv_wr=16, max_send_sge=8)
+qp_init_attr = QPInitAttr(cap=cap, qp_type=ibv_qp_type.IBV_QPT_RC, scq=cq, rcq=cq)
+print("qp_init_attr")
+qp = QP(pd, qp_init_attr, QPAttr())
+
 buf_size = 4096 
 
 flags = fe.IBV_ACCESS_LOCAL_WRITE | fe.IBV_ACCESS_REMOTE_WRITE | fe.IBV_ACCESS_REMOTE_READ
@@ -95,19 +112,19 @@ print("Starting RDMA listener to keep MR alive...")
 try:
     # Setup listener on the same port the Target is looking for (7471)
     # AI_PASSIVE (0x1) allows it to bind to local addresses
-    cai = AddrInfo(src_service="7471", port_space=rdma_port_space.RDMA_PS_TCP, flags=1)
+    #cai = AddrInfo(src_service="7471", port_space=rdma_port_space.RDMA_PS_TCP, flags=1)
     
-    cap = QPCap(max_send_wr=5, max_recv_wr=5, max_send_sge=1)
-    qp_init_attr = QPInitAttr(cap=cap, qp_type=ibv_qp_type.IBV_QPT_RC)
+    #cap = QPCap(max_send_wr=5, max_recv_wr=5, max_send_sge=1)
+    #qp_init_attr = QPInitAttr(cap=cap, qp_type=ibv_qp_type.IBV_QPT_RC)
     
     # Listen for incoming connection
-    listen_id = CMID(creator=cai, qp_init_attr=qp_init_attr)
-    listen_id.listen()
+    #listen_id = CMID(creator=cai, qp_init_attr=qp_init_attr)
+    #listen_id.listen()
     
     print("Waiting for Target to connect...")
     # This blocks until the Target calls cid.connect()
-    conn_event_id = listen_id.get_request()
-    conn_event_id.accept()
+    #conn_event_id = listen_id.get_request()
+    #conn_event_id.accept()
     print("Target connected! The MR is now accessible.")
 
     # Stay alive as long as the connection exists
