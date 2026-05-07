@@ -42,15 +42,16 @@ print(f"Completion Queue: {cq}")
 
 # 4. Create QP(Queue Pair)
 cap = QPCap(max_send_wr=16, max_recv_wr=16, max_send_sge=8)
-qp_init_attr = QPInitAttr(cap=cap, qp_type=ibv_qp_type.IBV_QPT_RC, scq=cq, rcq=cq)
+#qp_init_attr = QPInitAttr(cap=cap, qp_type=ibv_qp_type.IBV_QPT_RC, scq=cq, rcq=cq)
+qp_init_attr = QPInitAttr(cap=cap)
 qp_attr = QPAttr()
 print("qp_init_attr")
-qp = QP(pd, qp_init_attr, qp_attr)
+#qp = QP(pd, qp_init_attr, qp_attr)
 
 # Initialize CIMD
 host_ip = "192.168.100.2"
 target_ip = "192.168.100.1"
-cai = AddrInfo(src = target_ip, dst=host_ip, dst_service="9999",
+cai = AddrInfo(dst=host_ip, dst_service="9999",
                 port_space = rdma_port_space.RDMA_PS_TCP)
 port_num = 1
 print(f"Connecting to Host at {host_ip}...")

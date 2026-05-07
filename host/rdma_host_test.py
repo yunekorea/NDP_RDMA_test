@@ -116,7 +116,11 @@ print(bufferptr)
 
 result = nvme.ndp_passthru(fd, cmd)
 print(result)
+
+print("starting get_request")
 new_id = sid.get_request()
+print("get_request DONE")
+new_id.accept()
 
 print("Starting RDMA listener to keep MR alive...")
 try:
