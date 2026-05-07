@@ -143,12 +143,11 @@ def read_metadata(conn, mask):
             #wc = cid.cq.poll()[0]
             #wc = cq.poll()[0]
             
-            
             if 1: # Success
                 print("RDMA Read Successful!")
                 # Verify by reading the local buffer content
                 # mr.read(length, offset) returns the data
-                print(f"Data from Host: {local_mr.read(length, 0)}")
+                print(f"Data from Host: {local_mr.read(32, 0).decode()}")
             else:
                 #print(f"RDMA Read Failed. Status code: {wc.status}")
                 print("ff")
