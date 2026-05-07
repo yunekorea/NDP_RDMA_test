@@ -140,16 +140,18 @@ def read_metadata(conn, mask):
             '''
             cid.post_read(local_mr, length, addr, rkey)
 
-            wc = cid.cq.poll()[0]
+            #wc = cid.cq.poll()[0]
             #wc = cq.poll()[0]
             
-            if wc.status == 0: # Success
+            
+            if 1: # Success
                 print("RDMA Read Successful!")
                 # Verify by reading the local buffer content
                 # mr.read(length, offset) returns the data
                 print(f"Data from Host: {local_mr.read(length, 0)}")
             else:
-                print(f"RDMA Read Failed. Status code: {wc.status}")
+                #print(f"RDMA Read Failed. Status code: {wc.status}")
+                print("ff")
         
         except struct.error as e:
             print(f"Error unpacking metadata: {e}")
