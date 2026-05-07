@@ -22,6 +22,7 @@ from pyverbs.libibverbs_enums import ibv_access_flags, ibv_qp_type, ibv_wr_opcod
 from pyverbs.librdmacm_enums import rdma_port_space, RAI_PASSIVE
 import pyverbs.wr as pwr
 
+
 # Initialize RDMA Device
 # 1. Open a device
 dev_name = "mlx5_0".encode('utf-8')
@@ -46,27 +47,19 @@ qp_attr = QPAttr()
 print("qp_init_attr")
 qp = QP(pd, qp_init_attr, qp_attr)
 
+# Initialize CIMD
+host_ip = "192.168.100.2"
+target_ip = "192.168.100.1"
+cai = AddrInfo(src = target_ip, dst=host_ip, dst_service="9999",
+                port_space = rdma_port_space.RDMA_PS_TCP)
+port_num = 1
+print(f"Connecting to Host at {host_ip}...")
+cid = CMID(creator=cai, qp_init_attr=qp_init_attr)
+
 qp_state = qp_attr.cur_qp_state
 print(f"QP status BEFORE to_rts: {qp_state}")
 # No need in case of RC. Needed for UD.
-'''
-host_ip = "192.168.100.2"
-target_ip = "192.168.100.1"
-cai = AddrInfo(src = target_ip, dst=host_ip, dst_service="7471",
-                port_space = rdma_port_space.RDMA_PS_TCP, flags=RAI_PASSIVE)
-port_num = 1
-gid = ctx.query_gid(port_num=1, index=0)
-print(f"gid: {gid}")
-gr = GlobalRoute(dgid=gid, sgid_index=0)
-ah_attr = AHAttr(gr = gr, is_global=1, port_num=port_num)
-ah=AH(pd, attr=ah_attr)
-print(f"Connecting to Host at {host_ip}...")
-cid = CMID(creator=cai, qp_init_attr=qp_init_attr)
-'''
 sel = selectors.DefaultSelector()
-qp.to_rts(qp_attr)
-qp_state = qp_attr.cur_qp_state
-print(f"QP status AFTER to_rts: {qp_state}")
 
 def read_metadata(conn, mask):
     data = conn.recv(128)
@@ -76,6 +69,7 @@ def read_metadata(conn, mask):
         struct_format = "<QQII50s" 
         
         try:
+            cid.connect()
             # We slice the data to match the expected struct size
             unpacked = struct.unpack(struct_format, data[:struct.calcsize(struct_format)])
             

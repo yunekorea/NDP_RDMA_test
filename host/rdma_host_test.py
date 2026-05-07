@@ -16,7 +16,6 @@ from pyverbs.libibverbs_enums import ibv_access_flags as fe
 from pyverbs.cmid import CMID, AddrInfo
 from pyverbs.qp import QPInitAttr, QPCap, QPAttr, QP
 from pyverbs.libibverbs_enums import ibv_qp_type
-from pyverbs.librdmacm_enums import rdma_port_space
 from pyverbs.librdmacm_enums import rdma_port_space, RAI_PASSIVE
 from pyverbs.cq import CQ
 
@@ -42,6 +41,16 @@ cap = QPCap(max_send_wr=16, max_recv_wr=16, max_send_sge=8)
 qp_init_attr = QPInitAttr(cap=cap, qp_type=ibv_qp_type.IBV_QPT_RC, scq=cq, rcq=cq)
 print("qp_init_attr")
 qp = QP(pd, qp_init_attr, QPAttr())
+
+# Initialize CIMD
+host_ip = "192.168.100.2"
+target_ip = "192.168.100.1"
+sai = AddrInfo(src=host_ip, dst=target_ip, dst_service="9999",
+                port_space = rdma_port_space.RDMA_PS_TCP, flags = RAI_PASSIVE)
+port_num = 1
+print(f"Connecting to Host at {host_ip}...")
+sid = CMID(creator=sai, qp_init_attr=qp_init_attr)
+sid.listen()
 
 buf_size = 4096 
 
@@ -107,6 +116,7 @@ print(bufferptr)
 
 result = nvme.ndp_passthru(fd, cmd)
 print(result)
+new_id = sid.get_request()
 
 print("Starting RDMA listener to keep MR alive...")
 try:
