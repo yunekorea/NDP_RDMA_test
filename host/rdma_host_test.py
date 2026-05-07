@@ -22,6 +22,7 @@ from pyverbs.cq import CQ
 
 dev_name = "rocep59s0".encode('utf-8')
 dev_name_len = len(dev_name)
+'''
 # Initialize RDMA Device
 ctx = Context(name='rocep59s0')
 
@@ -41,8 +42,10 @@ cap = QPCap(max_send_wr=16, max_recv_wr=16, max_send_sge=8)
 qp_init_attr = QPInitAttr(cap=cap, qp_type=ibv_qp_type.IBV_QPT_RC, scq=cq, rcq=cq)
 print("qp_init_attr")
 qp = QP(pd, qp_init_attr, QPAttr())
-
+'''
 # Initialize CIMD
+cap = QPCap(max_send_wr=16, max_recv_wr=16, max_send_sge=8)
+qp_init_attr = QPInitAttr(cap=cap)
 host_ip = "192.168.100.2"
 target_ip = "192.168.100.1"
 sai = AddrInfo(src=host_ip, src_service="9999",

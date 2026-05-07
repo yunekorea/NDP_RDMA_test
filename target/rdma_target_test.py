@@ -52,9 +52,8 @@ print("qp_init_attr")
 # Initialize CIMD
 host_ip = "192.168.100.2"
 target_ip = "192.168.100.1"
-cai = AddrInfo(src=target_ip, dst=host_ip, dst_service="9999",
+cai = AddrInfo(src = target_ip,dst=host_ip, dst_service="9999",
                 port_space = rdma_port_space.RDMA_PS_TCP)
-port_num = 1
 cid = CMID(creator=cai, qp_init_attr=qp_init_attr)
 
 qp_state = qp_attr.cur_qp_state
@@ -88,8 +87,6 @@ def read_metadata(conn, mask):
             print(f"Device Name: {device_name}")
             
             # Now you can proceed with your RDMA logic using these variables
-            print("sleep 3 secs")
-            time.sleep(3)
             print("cid.connect() start")
             cid.connect()
         
