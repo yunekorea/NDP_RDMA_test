@@ -22,6 +22,7 @@ from pyverbs.libibverbs_enums import ibv_access_flags, ibv_qp_type, ibv_wr_opcod
 from pyverbs.librdmacm_enums import rdma_port_space, RAI_PASSIVE
 import pyverbs.wr as pwr
 
+import time
 
 # Initialize RDMA Device
 # 1. Open a device
@@ -87,6 +88,8 @@ def read_metadata(conn, mask):
             print(f"Device Name: {device_name}")
             
             # Now you can proceed with your RDMA logic using these variables
+            print("sleep 3 secs")
+            time.sleep(3)
             print("cid.connect() start")
             cid.connect()
         

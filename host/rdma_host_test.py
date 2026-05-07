@@ -45,7 +45,7 @@ qp = QP(pd, qp_init_attr, QPAttr())
 # Initialize CIMD
 host_ip = "192.168.100.2"
 target_ip = "192.168.100.1"
-sai = AddrInfo(src=host_ip, dst_service="9999",
+sai = AddrInfo(src=host_ip, src_service="9999",
                 port_space = rdma_port_space.RDMA_PS_TCP, flags = RAI_PASSIVE)
 port_num = 1
 print(f"Connecting to Host at {host_ip}...")
