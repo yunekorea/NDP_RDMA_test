@@ -59,7 +59,8 @@ buf_size = 4096
 
 flags = fe.IBV_ACCESS_LOCAL_WRITE | fe.IBV_ACCESS_REMOTE_WRITE | fe.IBV_ACCESS_REMOTE_READ
 
-mr = MR(pd, buf_size, flags)
+#mr = MR(pd, buf_size, flags)
+mr = sid.reg_read(buf_size)
 
 metadata = {
     "rkey": mr.rkey,
