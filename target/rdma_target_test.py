@@ -51,10 +51,9 @@ print("qp_init_attr")
 # Initialize CIMD
 host_ip = "192.168.100.2"
 target_ip = "192.168.100.1"
-cai = AddrInfo(dst=host_ip, dst_service="9999",
+cai = AddrInfo(src=target_ip, dst=host_ip, dst_service="9999",
                 port_space = rdma_port_space.RDMA_PS_TCP)
 port_num = 1
-print(f"Connecting to Host at {host_ip}...")
 cid = CMID(creator=cai, qp_init_attr=qp_init_attr)
 
 qp_state = qp_attr.cur_qp_state
@@ -70,7 +69,6 @@ def read_metadata(conn, mask):
         struct_format = "<QQII50s" 
         
         try:
-            cid.connect()
             # We slice the data to match the expected struct size
             unpacked = struct.unpack(struct_format, data[:struct.calcsize(struct_format)])
             
@@ -89,7 +87,8 @@ def read_metadata(conn, mask):
             print(f"Device Name: {device_name}")
             
             # Now you can proceed with your RDMA logic using these variables
-            
+            print("cid.connect() start")
+            cid.connect()
         
             local_mr = MR(pd, length, ibv_access_flags.IBV_ACCESS_LOCAL_WRITE)
             print("MR set")
