@@ -25,7 +25,6 @@ dev_name = "rocep59s0".encode('utf-8')
 dev_name_len = len(dev_name)
 # Initialize RDMA Device
 ctx = Context(name='rocep59s0')
-pd = PD(ctx)
 
 # 2. Create PD
 pd = PD(ctx)

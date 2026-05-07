@@ -42,9 +42,12 @@ print(f"Completion Queue: {cq}")
 # 4. Create QP(Queue Pair)
 cap = QPCap(max_send_wr=16, max_recv_wr=16, max_send_sge=8)
 qp_init_attr = QPInitAttr(cap=cap, qp_type=ibv_qp_type.IBV_QPT_RC, scq=cq, rcq=cq)
+qp_attr = QPAttr()
 print("qp_init_attr")
-qp = QP(pd, qp_init_attr, QPAttr())
+qp = QP(pd, qp_init_attr, qp_attr)
 
+qp_state = qp_attr.cur_qp_state
+print(f"QP status BEFORE to_rts: {qp_state}")
 # No need in case of RC. Needed for UD.
 '''
 host_ip = "192.168.100.2"
@@ -61,6 +64,9 @@ print(f"Connecting to Host at {host_ip}...")
 cid = CMID(creator=cai, qp_init_attr=qp_init_attr)
 '''
 sel = selectors.DefaultSelector()
+qp.to_rts(qp_attr)
+qp_state = qp_attr.cur_qp_state
+print(f"QP status AFTER to_rts: {qp_state}")
 
 def read_metadata(conn, mask):
     data = conn.recv(128)
@@ -91,6 +97,7 @@ def read_metadata(conn, mask):
             
         
             local_mr = MR(pd, length, ibv_access_flags.IBV_ACCESS_LOCAL_WRITE)
+            print("MR set")
 
             #cid.connect()
             #print("cid connected!")
@@ -104,24 +111,36 @@ def read_metadata(conn, mask):
                 length=length,
                 lkey=local_mr.lkey
             )
+            sgl = [sge]
+            print("SGE set")
 
             # Attach SGE to WR
-            wr = pwr.SendWR(
-                opcode=ibv_wr_opcode.IBV_WR_RDMA_READ,
+            wr = pwr.SendWR(opcode=ibv_wr_opcode.IBV_WR_RDMA_READ,
                 num_sge = 1,
-                sg = sge
+                sg = sgl
             )
             print("WR Set")
             #wr.set_sgl([sge])
 
             # Set the remote memory details
             #wr.wr.rdma.remote_addr = addr
-            #wr.wr.rdma.rkey = rkey            
-            wr.set_wr_rdma(addr, rkey)
+            #wr.wr.rdma.rkey = rkey
+
+            print(type(sge.addr))
+            print(type(sge.lkey))
+            print(type(addr))
+            print(type(rkey))
+
+            print(sge.addr)
+            print(addr)
+
+            wr.set_wr_rdma(int(addr), int(rkey))
+            print("set_wr_rdma done")
             
             print("About to send WR")
             #cid.qp.post_send(wr)
-            qp.post_send(wr)
+            qp.post_send(wr, None)
+            print("post send done")
 
             #wc = cid.cq.poll()[0]
             wc = cq.poll()[0]
