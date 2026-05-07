@@ -90,7 +90,8 @@ def read_metadata(conn, mask):
             print("cid.connect() start")
             cid.connect()
         
-            local_mr = MR(pd, length, ibv_access_flags.IBV_ACCESS_LOCAL_WRITE)
+            #local_mr = MR(pd, length, ibv_access_flags.IBV_ACCESS_LOCAL_WRITE)
+            local_mr = cid.reg_msgs(length)
             print("MR set")
 
             #cid.connect()
@@ -100,6 +101,7 @@ def read_metadata(conn, mask):
             #wr.set_sgl(local_mr)
 
             # Create SGE explicitly
+            '''
             sge = pwr.SGE(
                 addr=local_mr.buf,
                 length=length,
@@ -135,9 +137,11 @@ def read_metadata(conn, mask):
             #cid.qp.post_send(wr)
             qp.post_send(wr, None)
             print("post send done")
+            '''
+            cid.post_read(local_mr, length, addr, rkey)
 
-            #wc = cid.cq.poll()[0]
-            wc = cq.poll()[0]
+            wc = cid.cq.poll()[0]
+            #wc = cq.poll()[0]
             
             if wc.status == 0: # Success
                 print("RDMA Read Successful!")
