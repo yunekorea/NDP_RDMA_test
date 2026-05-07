@@ -62,6 +62,10 @@ flags = fe.IBV_ACCESS_LOCAL_WRITE | fe.IBV_ACCESS_REMOTE_WRITE | fe.IBV_ACCESS_R
 #mr = MR(pd, buf_size, flags)
 mr = sid.reg_read(buf_size)
 
+test_message = "HELLO_FROM_THE_HOST_RDMA_SUCCESS".encode('utf-8')
+mr.write(test_message, len(test_message), 0) # Writes to the start of the buffer (offset 0)
+print(f"MR initialized with test data: {test_message.decode()}")
+
 metadata = {
     "rkey": mr.rkey,
     "addr": mr.buf,
