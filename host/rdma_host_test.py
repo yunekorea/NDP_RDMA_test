@@ -132,6 +132,7 @@ print("get_request DONE")
 new_id.accept()
 
 sid.post_recv(rmr)
+print("Post Recv DONE")
 
 print("RDMA Recv Successful!")
 # Verify by reading the local buffer content
