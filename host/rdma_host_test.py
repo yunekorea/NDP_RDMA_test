@@ -130,6 +130,14 @@ new_id = sid.get_request()
 print("get_request DONE")
 new_id.accept()
 
+rmr = sid.reg_write(buf_size)
+sid.post_recv(rmr)
+
+print("RDMA Recv Successful!")
+# Verify by reading the local buffer content
+# mr.read(length, offset) returns the data
+print(f"Data from Target: {rmr.read(32, 0).decode()}")
+
 print("Starting RDMA listener to keep MR alive...")
 try:
     # Setup listener on the same port the Target is looking for (7471)

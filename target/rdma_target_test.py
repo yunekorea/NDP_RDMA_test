@@ -151,6 +151,14 @@ def read_metadata(conn, mask):
             else:
                 #print(f"RDMA Read Failed. Status code: {wc.status}")
                 print("ff")
+            #new_mr = cid.reg_read(length)
+            #new_mr.write(local_mr.read(length), length)
+
+            print("Post SEND")
+            cid.post_send(local_mr, length)
+            print("Successful")
+
+
         
         except struct.error as e:
             print(f"Error unpacking metadata: {e}")
