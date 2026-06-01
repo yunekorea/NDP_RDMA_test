@@ -119,6 +119,7 @@ packed_data = struct.pack(pack_format, metadata['rkey'], metadata['addr'], metad
 ctypes.memmove(bufferptr.value, packed_data, len(packed_data))
 
 
+rmr = sid.reg_write(buf_size)
 print(cmd.data)
 print(bufferptr)
 
@@ -130,7 +131,6 @@ new_id = sid.get_request()
 print("get_request DONE")
 new_id.accept()
 
-rmr = sid.reg_write(buf_size)
 sid.post_recv(rmr)
 
 print("RDMA Recv Successful!")
