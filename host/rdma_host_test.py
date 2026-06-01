@@ -131,7 +131,7 @@ new_id = sid.get_request()
 print("get_request DONE")
 new_id.accept()
 
-sid.post_recv(rmr)
+recv_result = sid.post_recv(rmr)
 print("Post Recv DONE")
 
 print("RDMA Recv Successful!")
