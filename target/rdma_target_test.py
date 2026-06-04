@@ -43,11 +43,9 @@ print(f"Completion Queue: {cq}")
 
 # 4. Create QP(Queue Pair)
 cap = QPCap(max_send_wr=16, max_recv_wr=16, max_send_sge=8)
-#qp_init_attr = QPInitAttr(cap=cap, qp_type=ibv_qp_type.IBV_QPT_RC, scq=cq, rcq=cq)
 qp_init_attr = QPInitAttr(cap=cap)
 qp_attr = QPAttr()
 print("qp_init_attr")
-#qp = QP(pd, qp_init_attr, qp_attr)
 
 # Initialize CIMD
 host_ip = "192.168.100.2"
@@ -90,69 +88,16 @@ def read_metadata(conn, mask):
             print("cid.connect() start")
             cid.connect()
         
-            #local_mr = MR(pd, length, ibv_access_flags.IBV_ACCESS_LOCAL_WRITE)
             local_mr = cid.reg_msgs(length)
             print("MR set")
-
-            #cid.connect()
-            #print("cid connected!")
-
-            #wr = pwr.SendWR(opcode=ibv_wr_opcode.IBV_WR_RDMA_READ, num_sge=1)
-            #wr.set_sgl(local_mr)
-
-            # Create SGE explicitly
-            '''
-            sge = pwr.SGE(
-                addr=local_mr.buf,
-                length=length,
-                lkey=local_mr.lkey
-            )
-            sgl = [sge]
-            print("SGE set")
-
-            # Attach SGE to WR
-            wr = pwr.SendWR(opcode=ibv_wr_opcode.IBV_WR_RDMA_READ,
-                num_sge = 1,
-                sg = sgl
-            )
-            print("WR Set")
-            #wr.set_sgl([sge])
-
-            # Set the remote memory details
-            #wr.wr.rdma.remote_addr = addr
-            #wr.wr.rdma.rkey = rkey
-
-            print(type(sge.addr))
-            print(type(sge.lkey))
-            print(type(addr))
-            print(type(rkey))
-
-            print(sge.addr)
-            print(addr)
-
-            wr.set_wr_rdma(int(addr), int(rkey))
-            print("set_wr_rdma done")
-            
-            print("About to send WR")
-            #cid.qp.post_send(wr)
-            qp.post_send(wr, None)
-            print("post send done")
-            '''
-            cid.post_read(local_mr, length, addr, rkey)
-
-            #wc = cid.cq.poll()[0]
-            #wc = cq.poll()[0]
             
             if 1: # Success
                 print("RDMA Read Successful!")
                 # Verify by reading the local buffer content
-                # mr.read(length, offset) returns the data
                 print(f"Data from Host: {local_mr.read(32, 0).decode()}")
             else:
                 #print(f"RDMA Read Failed. Status code: {wc.status}")
                 print("ff")
-            #new_mr = cid.reg_read(length)
-            #new_mr.write(local_mr.read(length), length)
 
             print("Post SEND")
             cid.post_send(local_mr, length)
